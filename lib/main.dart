@@ -1,4 +1,5 @@
 import 'package:chatgpt_app/providers/models_provider.dart';
+import 'package:chatgpt_app/providers/assistants_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -22,11 +23,14 @@ class MyApp extends StatelessWidget {
           create: (_) => ModelsProvider(),
         ),
         ChangeNotifierProvider(
+          create: (_) => AssistantsProvider(),
+        ),
+        ChangeNotifierProvider(
           create: (_) => ChatProvider(),
         ),
       ],
       child: MaterialApp(
-        title: 'Lychee',
+        title: 'ChatGPT4',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
             scaffoldBackgroundColor: scaffoldBackgroundColor,

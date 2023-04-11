@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../constants/constants.dart';
 import '../widgets/drop_down.dart';
+import '../widgets/assistant_drop_down.dart';
 import '../widgets/text_widget.dart';
 
 class Services {
@@ -15,20 +16,42 @@ class Services {
         backgroundColor: scaffoldBackgroundColor,
         context: context,
         builder: (context) {
-          return Padding(
-            padding: const EdgeInsets.all(18.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Flexible(
-                  child: TextWidget(
-                    label: "Chosen Model:",
-                    fontSize: 16,
-                  ),
+          return Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(24.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: const [
+                    Flexible(
+                      child: TextWidget(
+                        label: "Chosen Model:",
+                        fontSize: 16,
+                      ),
+                    ),
+                    Flexible(flex: 2, child: ModelsDrowDownWidget()),
+                  ],
                 ),
-                Flexible(flex: 2, child: ModelsDrowDownWidget()),
-              ],
-            ),
+              ),
+              const SizedBox(
+                width: 5,
+              ),
+              Container(
+                padding: const EdgeInsets.all(24.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: const [
+                    Flexible(
+                      child: TextWidget(
+                        label: "Chosen Assistant:",
+                        fontSize: 16,
+                      ),
+                    ),
+                    Flexible(child: AssistantDrowDownWidget()),
+                  ],
+                ),
+              ),
+            ]
           );
         });
   }
