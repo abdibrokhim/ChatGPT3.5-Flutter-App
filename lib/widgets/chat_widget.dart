@@ -20,7 +20,7 @@ class ChatWidget extends StatelessWidget {
   
   final String lycheeIcon = "images/lycheeIcon.png";
   final String userIcon = "images/userIcon.png";
-  
+
   @override
   Widget build(BuildContext context) {
     return Column(

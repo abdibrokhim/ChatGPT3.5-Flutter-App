@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:chatgpt_app/constants/constants.dart';
 import 'package:chatgpt_app/providers/chats_provider.dart';
@@ -11,6 +12,9 @@ import 'package:provider/provider.dart';
 
 import '../providers/models_provider.dart';
 import '../widgets/text_widget.dart';
+
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:chatgpt_app/ad_helper/ad_helper.dart';
 
 
 class ChatScreen extends StatefulWidget {
@@ -26,6 +30,65 @@ class _ChatScreenState extends State<ChatScreen> {
   late TextEditingController textEditingController;
   late ScrollController _listScrollController;
   late FocusNode focusNode;
+
+  int _adCounter = 0;
+  InterstitialAd? _interstitialAd;
+  RewardedAd? _rewardedAd;
+
+  void _moveToHome() {
+    print('moved to home');
+  }
+
+  void _loadInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: AdHelper.interstitialAdUnitId,
+      request: const AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (ad) {
+          ad.fullScreenContentCallback = FullScreenContentCallback(
+            onAdDismissedFullScreenContent: (ad) {
+              _moveToHome();
+            },
+          );
+
+          setState(() {
+            _interstitialAd = ad;
+          });
+        },
+        onAdFailedToLoad: (err) {
+          print('Failed to load an interstitial ad: ${err.message}');
+        },
+      ),
+    );
+  }
+
+  void _loadRewardedAd() {
+    RewardedAd.load(
+      adUnitId: AdHelper.rewardedAdUnitId,
+      request: const AdRequest(),
+      rewardedAdLoadCallback: RewardedAdLoadCallback(
+        onAdLoaded: (ad) {
+          ad.fullScreenContentCallback = FullScreenContentCallback(
+            onAdDismissedFullScreenContent: (ad) {
+              setState(() {
+                ad.dispose();
+                _rewardedAd = null;
+              });
+              _loadRewardedAd();
+            },
+          );
+
+          setState(() {
+            _rewardedAd = ad;
+          });
+        },
+        onAdFailedToLoad: (err) {
+          print('Failed to load a rewarded ad: ${err.message}');
+        },
+      ),
+    );
+  }
+
   @override
   void initState() {
     _listScrollController = ScrollController();
@@ -39,6 +102,8 @@ class _ChatScreenState extends State<ChatScreen> {
     _listScrollController.dispose();
     textEditingController.dispose();
     focusNode.dispose();
+    _interstitialAd?.dispose();
+    _rewardedAd?.dispose();
     super.dispose();
   }
 
@@ -173,7 +238,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void scrollListToEND() {
     _listScrollController.animateTo(
         _listScrollController.position.maxScrollExtent,
-        duration: const Duration(seconds: 2),
+        duration: const Duration(seconds: 1),
         curve: Curves.easeOut);
   }
 
@@ -191,6 +256,25 @@ class _ChatScreenState extends State<ChatScreen> {
           backgroundColor: Colors.red,
         ),
       );
+
+      _adCounter++;
+      _loadInterstitialAd();
+      if (_adCounter % 2 == 0) {
+        _loadRewardedAd();
+      }
+
+      if (_interstitialAd != null) {
+            _interstitialAd?.show();
+      } 
+      if (_rewardedAd != null) {
+        _adCounter = 0;
+        _rewardedAd?.show(
+          onUserEarnedReward: (_, reward) {
+            print('You have $reward free candy');
+          },
+        );
+      }
+
       return;
     }
     if (textEditingController.text.isEmpty) {
@@ -202,6 +286,25 @@ class _ChatScreenState extends State<ChatScreen> {
           backgroundColor: Colors.red,
         ),
       );
+
+      _adCounter++;
+      _loadInterstitialAd();
+      if (_adCounter % 2 == 0) {
+        _loadRewardedAd();
+      }
+
+      if (_interstitialAd != null) {
+          _interstitialAd?.show();
+      } 
+      if (_rewardedAd != null) {
+        _adCounter = 0;
+        _rewardedAd?.show(
+          onUserEarnedReward: (_, reward) {
+            print('You have $reward free candy');
+          },
+        );
+      }
+
       return;
     }
     try {
@@ -233,6 +336,12 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() {
         scrollListToEND();
         _isTyping = false;
+        
+        _loadInterstitialAd();
+        
+        if (_interstitialAd != null) {
+          _interstitialAd?.show();
+        }  
       });
     }
   }
