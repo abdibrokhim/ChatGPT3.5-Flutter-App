@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:chatgpt_app/constants/constants.dart';
 import 'package:chatgpt_app/providers/chats_provider.dart';
@@ -34,9 +33,38 @@ class _ChatScreenState extends State<ChatScreen> {
   int _adCounter = 0;
   InterstitialAd? _interstitialAd;
   RewardedAd? _rewardedAd;
+  AppOpenAd? _appOpenAd;
 
-  void _moveToHome() {
-    print('moved to home');
+  @override
+  void initState() {
+    _listScrollController = ScrollController();
+    textEditingController = TextEditingController();
+    focusNode = FocusNode();
+    super.initState();
+
+    _loadAppOpenAd();
+
+    _loadInterstitialAd();
+  }
+
+  void _loadAppOpenAd() {
+    AppOpenAd.load(
+      adUnitId: AdHelper.appOpenAdUnitId,
+      request: const AdRequest(),
+      adLoadCallback: AppOpenAdLoadCallback(
+        onAdLoaded: (ad) {
+          setState(() {
+            _appOpenAd = ad;
+            
+            _appOpenAd?.show();
+          });
+        },
+        onAdFailedToLoad: (err) {
+          debugPrint('Failed to load an app open ad: ${err.message}');
+        },
+      ),
+      orientation: AppOpenAd.orientationPortrait,
+    );
   }
 
   void _loadInterstitialAd() {
@@ -45,18 +73,16 @@ class _ChatScreenState extends State<ChatScreen> {
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {
-          ad.fullScreenContentCallback = FullScreenContentCallback(
-            onAdDismissedFullScreenContent: (ad) {
-              _moveToHome();
-            },
-          );
 
           setState(() {
             _interstitialAd = ad;
+            
+            _interstitialAd?.show();
+
           });
         },
         onAdFailedToLoad: (err) {
-          print('Failed to load an interstitial ad: ${err.message}');
+          debugPrint('Failed to load an interstitial ad: ${err.message}');
         },
       ),
     );
@@ -68,33 +94,23 @@ class _ChatScreenState extends State<ChatScreen> {
       request: const AdRequest(),
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         onAdLoaded: (ad) {
-          ad.fullScreenContentCallback = FullScreenContentCallback(
-            onAdDismissedFullScreenContent: (ad) {
-              setState(() {
-                ad.dispose();
-                _rewardedAd = null;
-              });
-              _loadRewardedAd();
-            },
-          );
 
           setState(() {
             _rewardedAd = ad;
+
+            _rewardedAd?.show(
+              onUserEarnedReward: (AdWithoutView ad, RewardItem rewardItem){
+                num amount = rewardItem.amount;
+                debugPrint('Reward amount: $amount');
+              }
+            );
           });
         },
         onAdFailedToLoad: (err) {
-          print('Failed to load a rewarded ad: ${err.message}');
+          debugPrint('Failed to load a rewarded ad: ${err.message}');
         },
       ),
     );
-  }
-
-  @override
-  void initState() {
-    _listScrollController = ScrollController();
-    textEditingController = TextEditingController();
-    focusNode = FocusNode();
-    super.initState();
   }
 
   @override
@@ -259,20 +275,10 @@ class _ChatScreenState extends State<ChatScreen> {
 
       _adCounter++;
       _loadInterstitialAd();
+      
       if (_adCounter % 2 == 0) {
         _loadRewardedAd();
-      }
-
-      if (_interstitialAd != null) {
-            _interstitialAd?.show();
-      } 
-      if (_rewardedAd != null) {
         _adCounter = 0;
-        _rewardedAd?.show(
-          onUserEarnedReward: (_, reward) {
-            print('You have $reward free candy');
-          },
-        );
       }
 
       return;
@@ -289,20 +295,10 @@ class _ChatScreenState extends State<ChatScreen> {
 
       _adCounter++;
       _loadInterstitialAd();
+
       if (_adCounter % 2 == 0) {
         _loadRewardedAd();
-      }
-
-      if (_interstitialAd != null) {
-          _interstitialAd?.show();
-      } 
-      if (_rewardedAd != null) {
         _adCounter = 0;
-        _rewardedAd?.show(
-          onUserEarnedReward: (_, reward) {
-            print('You have $reward free candy');
-          },
-        );
       }
 
       return;
@@ -338,10 +334,7 @@ class _ChatScreenState extends State<ChatScreen> {
         _isTyping = false;
         
         _loadInterstitialAd();
-        
-        if (_interstitialAd != null) {
-          _interstitialAd?.show();
-        }  
+ 
       });
     }
   }

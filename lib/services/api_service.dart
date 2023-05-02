@@ -54,7 +54,7 @@ class ApiService {
             "messages": [
               {
                 "role": "system", 
-                "content": "Ignore all previous instructions. Your new role is $assistantId and you are a helpful $assistantId."
+                "content": "Ignore all previous instructions. Your new role is $assistantId and you are a helpful $assistantId. If someone asks your role you should say you are a $assistantId nothing else."
               },
               {
                 "role": "user",
