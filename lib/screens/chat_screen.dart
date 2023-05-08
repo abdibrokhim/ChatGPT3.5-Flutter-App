@@ -16,25 +16,35 @@ import '../widgets/text_widget.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:chatgpt_app/ad_helper/ad_helper.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:chatgpt_app/components/watch_video.dart';
+
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
+
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  static final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   bool _isTyping = false;
 
   late TextEditingController textEditingController;
   late ScrollController _listScrollController;
   late FocusNode focusNode;
+  bool appOpened = false;
+
+  int _requestCounter = 0;
 
   int _adCounter = 0;
   InterstitialAd? _interstitialAd;
   RewardedAd? _rewardedAd;
   AppOpenAd? _appOpenAd;
+
 
   @override
   void initState() {
@@ -43,12 +53,22 @@ class _ChatScreenState extends State<ChatScreen> {
     focusNode = FocusNode();
     super.initState();
 
-    // _loadAppOpenAd();
+    _loadAppOpenAd();
 
-    // _loadInterstitialAd();
+    _loadInterstitialAd();
+    
   }
 
-  void _loadAppOpenAd() {
+
+
+  void startRewardedVideo() async {
+    final SharedPreferences prefs = await _prefs;
+    
+    prefs.getBool('loadrewardedad') ?? true ? _loadRewardedAd() : null;
+  }
+
+
+  void _loadAppOpenAd() async {
     AppOpenAd.load(
       adUnitId: AdHelper.appOpenAdUnitId,
       request: const AdRequest(),
@@ -66,6 +86,12 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       orientation: AppOpenAd.orientationPortrait,
     );
+
+    appOpened = true;
+    
+    final SharedPreferences prefs = await _prefs;
+
+    prefs.setBool('loadrewardedad', false);
   }
 
   void _loadInterstitialAd() {
@@ -89,7 +115,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  void _loadRewardedAd() {
+  void _loadRewardedAd() async {
     RewardedAd.load(
       adUnitId: AdHelper.rewardedAdUnitId,
       request: const AdRequest(),
@@ -112,6 +138,8 @@ class _ChatScreenState extends State<ChatScreen> {
         },
       ),
     );
+
+    await stopRewardedAd();
   }
 
   @override
@@ -127,8 +155,10 @@ class _ChatScreenState extends State<ChatScreen> {
   final String lycheeIcon = "images/lycheeIcon.svg";
 
   // List<ChatModel> chatList = [];
+
   @override
   Widget build(BuildContext context) {
+
     final modelsProvider = Provider.of<ModelsProvider>(context);
     final chatProvider = Provider.of<ChatProvider>(context);
     final assistantProivder = Provider.of<AssistantsProvider>(context);
@@ -155,6 +185,7 @@ class _ChatScreenState extends State<ChatScreen> {
           IconButton(
             onPressed: () async {
               await Services.showModalSheet(context: context);
+              startRewardedVideo();
             },
             icon: const Icon(
               Icons.more_vert_rounded, 
@@ -270,6 +301,17 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  static Future<void> stopRewardedAd() async {
+
+    final SharedPreferences prefs = await _prefs;
+
+    prefs.setBool('loadrewardedad', false);
+
+    print('prefs.getBool(\'loadrewardedad\'):');
+    print(prefs.getBool('loadrewardedad'));
+
+  }
+
   void scrollListToEND() {
     _listScrollController.animateTo(
         _listScrollController.position.maxScrollExtent,
@@ -284,6 +326,12 @@ class _ChatScreenState extends State<ChatScreen> {
       required TasksProvider tasksProvider
       
       }) async {
+
+    final SharedPreferences prefs = await _prefs;
+
+    String apiKey = prefs.getString('apikey') ?? '';
+
+
     if (_isTyping) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -324,6 +372,21 @@ class _ChatScreenState extends State<ChatScreen> {
 
       return;
     }
+
+    if (_requestCounter > 0 && apiKey.isEmpty) {
+      
+      watchVideoDialogBuilder(
+        context: context,
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+      );
+      
+      _requestCounter = 0;
+      
+      return;
+    }
+
     try {
       String msg = textEditingController.text;
 
@@ -344,81 +407,6 @@ class _ChatScreenState extends State<ChatScreen> {
       //   message: textEditingController.text,
       //   modelId: modelsProvider.getCurrentModel,
       // ));
-      setState(() {});
-    } catch (error) {
-      log("error $error");
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: TextWidget(
-          label: error.toString(),
-        ),
-        backgroundColor: Colors.red,
-      ));
-    } finally {
-      setState(() {
-        scrollListToEND();
-        _isTyping = false;
-        
-        _loadInterstitialAd();
- 
-      });
-    }
-  }
-
-  Future<void> generateImage() async {
-    if (_isTyping) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: TextWidget(
-            label: "Multiple messages not allowed at a time",
-          ),
-          backgroundColor: Colors.red,
-        ),
-      );
-
-      _adCounter++;
-      _loadInterstitialAd();
-      
-      if (_adCounter % 2 == 0) {
-        _loadRewardedAd();
-        _adCounter = 0;
-      }
-
-      return;
-    }
-    if (textEditingController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: TextWidget(
-            label: "Message can't be empty",
-          ),
-          backgroundColor: Colors.red,
-        ),
-      );
-
-      _adCounter++;
-      _loadInterstitialAd();
-
-      if (_adCounter % 2 == 0) {
-        _loadRewardedAd();
-        _adCounter = 0;
-      }
-
-      return;
-    }
-    try {
-      String msg = textEditingController.text;
-
-      setState(() {
-        _isTyping = true;
-
-        textEditingController.clear();
-        focusNode.unfocus();
-      });
-
-      // await chatProvider.sendMessageAndGetAnswers(
-          // msg: msg, chosenModelId: modelsProvider.getCurrentModel, choosenAssistantId: assistantProivder.getCurrentAssistant
-      // );
-
       setState(() {});
     } catch (error) {
       log("error $error");

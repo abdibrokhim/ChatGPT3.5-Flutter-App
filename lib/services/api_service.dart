@@ -6,14 +6,25 @@ import 'package:chatgpt_app/constants/api_consts.dart';
 import 'package:chatgpt_app/models/chat_model.dart';
 import 'package:chatgpt_app/models/models_model.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class ApiService {
+  static final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   static Future<List<ModelsModel>> getModels() async {
+    final SharedPreferences prefs = await _prefs;
+
+    print(prefs.getString('apikey').toString());
+
+    String apiKey = prefs.getString('apikey').toString().isEmpty ? API_KEY : prefs.getString('apikey').toString();
+
+    print('apiKey: $apiKey');
+
     try {
       var response = await http.get(
         Uri.parse("$BASE_URL/models"),
-        headers: {'Authorization': 'Bearer $API_KEY'},
+        headers: {'Authorization': 'Bearer $apiKey'},
       );
 
       Map jsonResponse = jsonDecode(response.body);
@@ -38,6 +49,10 @@ class ApiService {
   // Send Message using ChatGPT API
   static Future<List<ChatModel>> sendMessageGPT(
       {required String message, required String modelId, required String assistantId}) async {
+        final SharedPreferences prefs = await _prefs;
+
+        String apiKey = prefs.getString('apikey').toString().isEmpty ? API_KEY : prefs.getString('apikey').toString();
+
       print('currentRole:');
       print(assistantId);
     try {
@@ -45,7 +60,7 @@ class ApiService {
       var response = await http.post(
         Uri.parse("$BASE_URL/chat/completions"),
         headers: {
-          'Authorization': 'Bearer $API_KEY',
+          'Authorization': 'Bearer $apiKey',
           "Content-Type": "application/json"
         },
         body: jsonEncode(
@@ -92,12 +107,17 @@ class ApiService {
   // Send Message fct
   static Future<List<ChatModel>> sendMessage(
       {required String message, required String modelId}) async {
+        
+        final SharedPreferences prefs = await _prefs;
+
+        String apiKey = prefs.getString('apikey').toString().isEmpty ? API_KEY : prefs.getString('apikey').toString();
+
     try {
       log("modelId $modelId");
       var response = await http.post(
         Uri.parse("$BASE_URL/completions"),
         headers: {
-          'Authorization': 'Bearer $API_KEY',
+          'Authorization': 'Bearer $apiKey',
           "Content-Type": "application/json"
         },
         body: jsonEncode(
@@ -138,11 +158,16 @@ class ApiService {
   // Send Message to dalle
   static Future<List<ChatModel>> sendMessageToGenerateImage(
       {required String message}) async {
+
+        final SharedPreferences prefs = await _prefs;
+
+        String apiKey = prefs.getString('apikey').toString().isEmpty ? API_KEY : prefs.getString('apikey').toString();
+
     try {
       var response = await http.post(
         Uri.parse("$BASE_URL/images/generations"),
         headers: {
-          'Authorization': 'Bearer $API_KEY',
+          'Authorization': 'Bearer $apiKey',
           "Content-Type": "application/json"
         },
         body: jsonEncode(

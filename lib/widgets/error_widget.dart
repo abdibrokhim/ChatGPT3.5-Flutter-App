@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:line_icons/line_icons.dart';
 
-import 'package:chatgpt_app/buttons/custom_button.dart';
+import 'package:chatgpt_app/components/custom_button.dart';
 
 
 

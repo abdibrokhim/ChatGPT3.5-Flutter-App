@@ -20,18 +20,18 @@ class CustomButton extends StatelessWidget {
         cursor: SystemMouseCursors.click,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 15.0),
-          margin: const EdgeInsets.symmetric(horizontal: 25.0),
+          margin: buttonName == 'Send' ? const EdgeInsets.symmetric(horizontal: 25.0) : const EdgeInsets.symmetric(horizontal: 0.0),
           decoration: BoxDecoration(
             color: buttonColor,
             borderRadius: BorderRadius.circular(10),
-            boxShadow: [
+            boxShadow: buttonName == 'Send' ? [
               BoxShadow(
                 color: Colors.grey.withOpacity(0.5),
                 spreadRadius: 3,
                 blurRadius: 7,
                 offset: const Offset(0, 3),
               ),
-            ],
+            ] : null,
           ),
           child: Text(
             buttonName,
