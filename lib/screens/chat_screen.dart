@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:chatgpt_app/constants/constants.dart';
 import 'package:chatgpt_app/providers/chats_provider.dart';
 import 'package:chatgpt_app/providers/assistants_provider.dart';
+import 'package:chatgpt_app/providers/tasks_provider.dart';
 import 'package:chatgpt_app/services/services.dart';
 import 'package:chatgpt_app/widgets/chat_widget.dart';
 import 'package:flutter/material.dart';
@@ -42,9 +43,9 @@ class _ChatScreenState extends State<ChatScreen> {
     focusNode = FocusNode();
     super.initState();
 
-    _loadAppOpenAd();
+    // _loadAppOpenAd();
 
-    _loadInterstitialAd();
+    // _loadInterstitialAd();
   }
 
   void _loadAppOpenAd() {
@@ -131,6 +132,13 @@ class _ChatScreenState extends State<ChatScreen> {
     final modelsProvider = Provider.of<ModelsProvider>(context);
     final chatProvider = Provider.of<ChatProvider>(context);
     final assistantProivder = Provider.of<AssistantsProvider>(context);
+    final tasksProvider = Provider.of<TasksProvider>(context);
+
+    
+    print('tasksProvider in chat_screen.dart:');
+    print(tasksProvider.getCurrentTask);
+
+
     return Scaffold(
       appBar: AppBar(
         elevation: 2,
@@ -168,6 +176,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           .getChatList[index].msg, // chatList[index].msg,
                       chatIndex: chatProvider.getChatList[index]
                           .chatIndex, //chatList[index].chatIndex,
+                      task: tasksProvider.getCurrentTask,
                       shouldAnimate:
                           chatProvider.getChatList.length - 1 == index,
                     );
@@ -211,8 +220,17 @@ class _ChatScreenState extends State<ChatScreen> {
                                       await sendMessageFCT(
                                           modelsProvider: modelsProvider,
                                           chatProvider: chatProvider,
-                                          assistantProivder: assistantProivder
+                                          assistantProivder: assistantProivder,
+                                          tasksProvider: tasksProvider,
                                       );
+
+                                      // if (tasksProvider.getCurrentTask == tasksList[0]) {
+                                      // } else if (tasksProvider.getCurrentTask == tasksList[1]) {
+                                      //   await generateImage();
+                                      // } else if (tasksProvider.getCurrentTask == tasksList[2]) {
+                                      //   await generateImage();
+                                      // }
+
                                     },
                                     decoration: const InputDecoration.collapsed(
                                         hintText: "Send a message...",
@@ -233,7 +251,8 @@ class _ChatScreenState extends State<ChatScreen> {
                           await sendMessageFCT(
                               modelsProvider: modelsProvider,
                               chatProvider: chatProvider,
-                              assistantProivder: assistantProivder
+                              assistantProivder: assistantProivder,
+                              tasksProvider: tasksProvider,
                           );
                         },
                         icon: const Icon(
@@ -261,7 +280,9 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> sendMessageFCT(
       {required ModelsProvider modelsProvider,
       required ChatProvider chatProvider,
-      required AssistantsProvider assistantProivder
+      required AssistantsProvider assistantProivder,
+      required TasksProvider tasksProvider
+      
       }) async {
     if (_isTyping) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -305,6 +326,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
     try {
       String msg = textEditingController.text;
+
       setState(() {
         _isTyping = true;
         // chatList.add(ChatModel(msg: textEditingController.text, chatIndex: 0));
@@ -313,12 +335,90 @@ class _ChatScreenState extends State<ChatScreen> {
         focusNode.unfocus();
       });
       await chatProvider.sendMessageAndGetAnswers(
-          msg: msg, chosenModelId: modelsProvider.getCurrentModel, choosenAssistantId: assistantProivder.getCurrentAssistant
+          msg: msg, 
+          chosenModelId: modelsProvider.getCurrentModel, 
+          choosenAssistantId: assistantProivder.getCurrentAssistant, 
+          choosenTask: tasksProvider.getCurrentTask
       );
       // chatList.addAll(await ApiService.sendMessage(
       //   message: textEditingController.text,
       //   modelId: modelsProvider.getCurrentModel,
       // ));
+      setState(() {});
+    } catch (error) {
+      log("error $error");
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: TextWidget(
+          label: error.toString(),
+        ),
+        backgroundColor: Colors.red,
+      ));
+    } finally {
+      setState(() {
+        scrollListToEND();
+        _isTyping = false;
+        
+        _loadInterstitialAd();
+ 
+      });
+    }
+  }
+
+  Future<void> generateImage() async {
+    if (_isTyping) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: TextWidget(
+            label: "Multiple messages not allowed at a time",
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+
+      _adCounter++;
+      _loadInterstitialAd();
+      
+      if (_adCounter % 2 == 0) {
+        _loadRewardedAd();
+        _adCounter = 0;
+      }
+
+      return;
+    }
+    if (textEditingController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: TextWidget(
+            label: "Message can't be empty",
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+
+      _adCounter++;
+      _loadInterstitialAd();
+
+      if (_adCounter % 2 == 0) {
+        _loadRewardedAd();
+        _adCounter = 0;
+      }
+
+      return;
+    }
+    try {
+      String msg = textEditingController.text;
+
+      setState(() {
+        _isTyping = true;
+
+        textEditingController.clear();
+        focusNode.unfocus();
+      });
+
+      // await chatProvider.sendMessageAndGetAnswers(
+          // msg: msg, chosenModelId: modelsProvider.getCurrentModel, choosenAssistantId: assistantProivder.getCurrentAssistant
+      // );
+
       setState(() {});
     } catch (error) {
       log("error $error");

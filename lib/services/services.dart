@@ -4,6 +4,7 @@ import '../constants/constants.dart';
 import '../widgets/drop_down.dart';
 import '../widgets/assistant_drop_down.dart';
 import '../widgets/text_widget.dart';
+import '../widgets/tasks_widget.dart';
 
 class Services {
   static Future<void> showModalSheet({required BuildContext context}) async {
@@ -48,6 +49,24 @@ class Services {
                       ),
                     ),
                     Flexible(child: AssistantDrowDownWidget()),
+                  ],
+                ),
+              ),
+              const SizedBox(
+                width: 5,
+              ),
+              Container(
+                padding: const EdgeInsets.all(24.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: const [
+                    Flexible(
+                      child: TextWidget(
+                        label: "Chosen Task:",
+                        fontSize: 16,
+                      ),
+                    ),
+                    Flexible(child: TasksDrowDownWidget()),
                   ],
                 ),
               ),

@@ -133,4 +133,49 @@ class ApiService {
       rethrow;
     }
   }
+
+
+  // Send Message to dalle
+  static Future<List<ChatModel>> sendMessageToGenerateImage(
+      {required String message}) async {
+    try {
+      var response = await http.post(
+        Uri.parse("$BASE_URL/images/generations"),
+        headers: {
+          'Authorization': 'Bearer $API_KEY',
+          "Content-Type": "application/json"
+        },
+        body: jsonEncode(
+          {
+            "prompt": message,
+            "n": 1,
+            "size": "256x256",
+          },
+        ),
+      );
+
+      // Map jsonResponse = jsonDecode(response.body);
+
+      Map jsonResponse = json.decode(utf8.decode(response.bodyBytes));
+      if (jsonResponse['error'] != null) {
+        // print("jsonResponse['error'] ${jsonResponse['error']["message"]}");
+        throw HttpException(jsonResponse['error']["message"]);
+      }
+      List<ChatModel> chatList = [];
+      if (jsonResponse["data"].length > 0) {
+        // log("jsonResponse[choices]text ${jsonResponse["choices"][0]["text"]}");
+        chatList = List.generate(
+          jsonResponse["data"].length,
+          (index) => ChatModel(
+            msg: jsonResponse["data"][0]["url"],
+            chatIndex: 1,
+          ),
+        );
+      }
+      return chatList;
+    } catch (error) {
+      log("error $error");
+      rethrow;
+    }
+  }
 }

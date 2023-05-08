@@ -14,6 +14,7 @@ class AssistantsProvider with ChangeNotifier {
   void setCurrentAssistant(String newAssistant) {
     currentAssistant = newAssistant;
     print(currentAssistant);
+    
     notifyListeners();
     print(getCurrentAssistant);
   }
