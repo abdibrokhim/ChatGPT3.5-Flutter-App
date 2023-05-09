@@ -19,7 +19,7 @@ class CustomButton extends StatelessWidget {
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 15.0),
+          padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 15.0),
           margin: buttonName == 'Send' ? const EdgeInsets.symmetric(horizontal: 25.0) : const EdgeInsets.symmetric(horizontal: 0.0),
           decoration: BoxDecoration(
             color: buttonColor,

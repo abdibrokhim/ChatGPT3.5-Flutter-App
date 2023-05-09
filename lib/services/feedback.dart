@@ -13,7 +13,7 @@ Future<void> dialogBuilder({
       return GestureDetector(
         onTap: () {
           // Dismiss the dialog if the user taps outside of it
-          // Navigator.of(context).pop();
+          Navigator.of(context).pop();
         },
         child: MouseRegion(
           cursor: SystemMouseCursors.click,

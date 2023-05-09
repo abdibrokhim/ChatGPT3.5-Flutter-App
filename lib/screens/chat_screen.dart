@@ -18,6 +18,7 @@ import 'package:chatgpt_app/ad_helper/ad_helper.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:chatgpt_app/components/watch_video.dart';
+import 'package:chatgpt_app/components/preview_info.dart';
 
 
 class ChatScreen extends StatefulWidget {
@@ -39,6 +40,7 @@ class _ChatScreenState extends State<ChatScreen> {
   bool appOpened = false;
 
   int _requestCounter = 0;
+  int videoLimit = 3;
 
   int _adCounter = 0;
   InterstitialAd? _interstitialAd;
@@ -138,8 +140,11 @@ class _ChatScreenState extends State<ChatScreen> {
         },
       ),
     );
+    
+    _requestCounter = 0;
 
     await stopRewardedAd();
+
   }
 
   @override
@@ -152,9 +157,6 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
-  final String lycheeIcon = "images/lycheeIcon.svg";
-
-  // List<ChatModel> chatList = [];
 
   @override
   Widget build(BuildContext context) {
@@ -175,13 +177,18 @@ class _ChatScreenState extends State<ChatScreen> {
         leading: Container(
           padding: const EdgeInsets.symmetric(horizontal: 0.0),
           margin: const EdgeInsets.symmetric(horizontal: 0.0),
-          // child: SvgPicture.asset(
-          //   lycheeIcon, 
-          //   semanticsLabel: 'Lychee Logo'
-          // ),
         ),
         title: const Text("ChatGPT4"),
         actions: [
+          IconButton(
+            onPressed: () async {
+              chatProvider.clearChatList();
+            },
+            icon: const Icon(
+              Icons.add, 
+              color: Colors.white
+            ),
+          ),
           IconButton(
             onPressed: () async {
               await Services.showModalSheet(context: context);
@@ -197,21 +204,25 @@ class _ChatScreenState extends State<ChatScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            Flexible(
+            chatProvider.chatList.isNotEmpty
+            ? Flexible(
               child: ListView.builder(
                   controller: _listScrollController,
-                  itemCount: chatProvider.getChatList.length, //chatList.length,
+                  itemCount: chatProvider.getChatList.length,
                   itemBuilder: (context, index) {
                     return ChatWidget(
                       msg: chatProvider
-                          .getChatList[index].msg, // chatList[index].msg,
+                          .getChatList[index].msg,
                       chatIndex: chatProvider.getChatList[index]
-                          .chatIndex, //chatList[index].chatIndex,
+                          .chatIndex,
                       task: tasksProvider.getCurrentTask,
                       shouldAnimate:
                           chatProvider.getChatList.length - 1 == index,
                     );
                   }),
+            )
+            : const Flexible(
+              child: PreviewInfo(),
             ),
             if (_isTyping) ...[
               const SpinKitThreeBounce(
@@ -254,14 +265,6 @@ class _ChatScreenState extends State<ChatScreen> {
                                           assistantProivder: assistantProivder,
                                           tasksProvider: tasksProvider,
                                       );
-
-                                      // if (tasksProvider.getCurrentTask == tasksList[0]) {
-                                      // } else if (tasksProvider.getCurrentTask == tasksList[1]) {
-                                      //   await generateImage();
-                                      // } else if (tasksProvider.getCurrentTask == tasksList[2]) {
-                                      //   await generateImage();
-                                      // }
-
                                     },
                                     decoration: const InputDecoration.collapsed(
                                         hintText: "Send a message...",
@@ -312,6 +315,17 @@ class _ChatScreenState extends State<ChatScreen> {
 
   }
 
+  static Future<String> getApiKey() async {
+
+    final SharedPreferences prefs = await _prefs;
+
+    String apiKey = prefs.getString('apikey') ?? '';
+
+    return apiKey;
+
+  }
+
+
   void scrollListToEND() {
     _listScrollController.animateTo(
         _listScrollController.position.maxScrollExtent,
@@ -326,10 +340,6 @@ class _ChatScreenState extends State<ChatScreen> {
       required TasksProvider tasksProvider
       
       }) async {
-
-    final SharedPreferences prefs = await _prefs;
-
-    String apiKey = prefs.getString('apikey') ?? '';
 
 
     if (_isTyping) {
@@ -373,16 +383,22 @@ class _ChatScreenState extends State<ChatScreen> {
       return;
     }
 
-    if (_requestCounter > 0 && apiKey.isEmpty) {
-      
+    Future<String> apiKey;
+    apiKey = getApiKey();
+
+    print('apiKey=$apiKey');
+
+    if (_requestCounter > videoLimit) {
+
+      print('loading rewarded ad _requestCounter=$_requestCounter');
+
       watchVideoDialogBuilder(
         context: context,
+        loadRewardedAd: _loadRewardedAd,
         onPressed: () {
           Navigator.of(context).pop();
         },
       );
-      
-      _requestCounter = 0;
       
       return;
     }
@@ -392,7 +408,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
       setState(() {
         _isTyping = true;
-        // chatList.add(ChatModel(msg: textEditingController.text, chatIndex: 0));
         chatProvider.addUserMessage(msg: msg);
         textEditingController.clear();
         focusNode.unfocus();
@@ -403,10 +418,7 @@ class _ChatScreenState extends State<ChatScreen> {
           choosenAssistantId: assistantProivder.getCurrentAssistant, 
           choosenTask: tasksProvider.getCurrentTask
       );
-      // chatList.addAll(await ApiService.sendMessage(
-      //   message: textEditingController.text,
-      //   modelId: modelsProvider.getCurrentModel,
-      // ));
+      
       setState(() {});
     } catch (error) {
       log("error $error");
@@ -422,6 +434,10 @@ class _ChatScreenState extends State<ChatScreen> {
         _isTyping = false;
         
         _loadInterstitialAd();
+
+        _requestCounter++;
+
+        print('_requestCounter=$_requestCounter');
  
       });
     }

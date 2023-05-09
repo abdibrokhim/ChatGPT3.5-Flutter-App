@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:line_icons/line_icons.dart';
 
 import 'package:chatgpt_app/components/custom_button.dart';
-
+import 'package:chatgpt_app/constants/constants.dart';
 
 
 class ErrorWidgetClass extends StatelessWidget {
@@ -18,14 +18,11 @@ class ErrorWidgetClass extends StatelessWidget {
 } 
 
 
-
 class CustomErrorWidget extends StatelessWidget {
   final String errorMessage;
-  
 
   const CustomErrorWidget({super.key, required this.errorMessage});
   
-
   @override
   Widget build(BuildContext context) {
     return MediaQuery(
@@ -71,15 +68,15 @@ class CustomErrorWidget extends StatelessWidget {
                     ),
                     const SizedBox(height: 30.0),
                     const Text(
-                      'Tap the button below to send this error.',
+                      'Restart the App, if error occured again tap the button below and contact us',
                       style: TextStyle(
                           fontSize: 14.0, 
                       ),
                     ),
                     const SizedBox(height: 10.0),
                     CustomButton(
-                      buttonName: 'Send',
-                      buttonColor: Colors.lightBlue,
+                      buttonName: EMAIL,
+                      buttonColor: scaffoldBackgroundColor,
                       onTap: () async {
                         await sendFeedback(context: context);
                       },

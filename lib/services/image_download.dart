@@ -19,9 +19,9 @@ class _DownloadingDialogState extends State<DownloadingDialog> {
   void startDownloading() async {
     String url = widget.imUrl;
 
-    String fileName = 'im.jpg';
+    // String fileName = 'im.jpg';
 
-    GallerySaver.saveImage(url, toDcim: true);
+    GallerySaver.saveImage(url, albumName: 'ChatGPT').then((bool? success) {});
 
     Navigator.of(context).pop();
   }

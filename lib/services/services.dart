@@ -32,8 +32,22 @@ class Services {
         builder: (context) {
           return Column(
             children: [
-               Container(
-                padding: const EdgeInsets.fromLTRB(0, 24, 0, 0),
+              Container(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: const [
+                    Flexible(
+                      child: TextWidget(
+                        label: "You are using free trial API Key.",
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.fromLTRB(0, 12, 0, 0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children:  [
@@ -43,11 +57,11 @@ class Services {
                         key: _formKey,
                         child: TokenTextField(
                           controller: _tokenController,
-                          hintText: "Enter your token here",
+                          hintText: "Enter your API Key here",
                           obscureText: false,
                           validator: (value) {
                             if (value!.isEmpty) {
-                              return 'PleaseEnter your token';
+                              return 'Please Enter your API Key';
                             } 
                           },
                         ),
@@ -55,9 +69,6 @@ class Services {
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(
-                width: 5,
               ),
               Container(
                 padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
@@ -74,9 +85,6 @@ class Services {
                   ],
                 ),
               ),
-              const SizedBox(
-                width: 5,
-              ),
               Container(
                 padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
                 child: Row(
@@ -91,9 +99,6 @@ class Services {
                     Flexible(child: AssistantDrowDownWidget()),
                   ],
                 ),
-              ),
-              const SizedBox(
-                width: 5,
               ),
               Container(
                 padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
@@ -111,21 +116,18 @@ class Services {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.fromLTRB(24, 36, 24, 0),
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: const [
                     Flexible(
                       child: TextWidget(
-                        label: "Buy API Key or Watch 5 second video to get free API Key:",
+                        label: "Buy API Key or Watch 5 seconds video and get free trial generations:",
                         fontSize: 16,
                       ),
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(
-                width: 5,
               ),
               Container(
                 padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),

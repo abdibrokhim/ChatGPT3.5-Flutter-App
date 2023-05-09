@@ -11,6 +11,11 @@ class ChatProvider with ChangeNotifier {
     return chatList;
   }
 
+  void clearChatList() {
+    chatList.clear();
+    notifyListeners();
+  }
+
   void addUserMessage({required String msg}) {
     chatList.add(ChatModel(msg: msg, chatIndex: 0));
     notifyListeners();

@@ -17,13 +17,13 @@ class ChatWidget extends StatelessWidget {
       this.shouldAnimate = false
   });
 
+
   final String msg;
   final int chatIndex;
   final String task;
   final bool shouldAnimate;
   
-  final String lycheeIcon = "images/lycheeIcon.png";
-  final String userIcon = "images/userIcon.png";
+
 
   @override
   Widget build(BuildContext context) {
@@ -38,13 +38,6 @@ class ChatWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Image.asset(
-                //   chatIndex == 0
-                //   ? userIcon
-                //   : lycheeIcon,
-                //   width: 40,
-                //   height: 40,
-                // ),
                 const SizedBox(
                   width: 10,
                 ),
@@ -117,19 +110,6 @@ class ChatWidget extends StatelessWidget {
                         ? Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
-                            // children: const [
-                            //   Icon(
-                            //     Icons.thumb_up_alt_outlined,
-                            //     color: Colors.white70,
-                            //   ),
-                            //   SizedBox(
-                            //     width: 5,
-                            //   ),
-                            //   Icon(
-                            //     Icons.thumb_down_alt_outlined,
-                            //     color: Colors.white70,
-                            //   )
-                            // ],
                             children: [
                               IconButton(
                                 padding: EdgeInsets.zero,
@@ -182,19 +162,6 @@ class ChatWidget extends StatelessWidget {
                         : Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
-                            // children: const [
-                            //   Icon(
-                            //     Icons.thumb_up_alt_outlined,
-                            //     color: Colors.white70,
-                            //   ),
-                            //   SizedBox(
-                            //     width: 5,
-                            //   ),
-                            //   Icon(
-                            //     Icons.thumb_down_alt_outlined,
-                            //     color: Colors.white70,
-                            //   )
-                            // ],
                             children: [
                               IconButton(
                                 padding: EdgeInsets.zero,
@@ -239,13 +206,6 @@ class ChatWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Image.asset(
-                //   chatIndex == 0
-                //   ? userIcon
-                //   : lycheeIcon,
-                //   width: 40,
-                //   height: 40,
-                // ),
                 const SizedBox(
                   width: 10,
                 ),
@@ -318,19 +278,6 @@ class ChatWidget extends StatelessWidget {
                         ? Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
-                            // children: const [
-                            //   Icon(
-                            //     Icons.thumb_up_alt_outlined,
-                            //     color: Colors.white70,
-                            //   ),
-                            //   SizedBox(
-                            //     width: 5,
-                            //   ),
-                            //   Icon(
-                            //     Icons.thumb_down_alt_outlined,
-                            //     color: Colors.white70,
-                            //   )
-                            // ],
                             children: [
                               IconButton(
                                 padding: EdgeInsets.zero,
@@ -372,12 +319,6 @@ class ChatWidget extends StatelessWidget {
                                     context: context,
                                     builder: (context) => DownloadingDialog(imUrl: msg),
                                   );
-
-                                  // await downloadImage(
-                                  //   context: context,
-                                  //   imagePath: msg,
-                                  // );
-
                                 },
                                 icon: const Icon(
                                   Icons.downloading_outlined,
@@ -389,19 +330,6 @@ class ChatWidget extends StatelessWidget {
                         : Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
-                            // children: const [
-                            //   Icon(
-                            //     Icons.thumb_up_alt_outlined,
-                            //     color: Colors.white70,
-                            //   ),
-                            //   SizedBox(
-                            //     width: 5,
-                            //   ),
-                            //   Icon(
-                            //     Icons.thumb_down_alt_outlined,
-                            //     color: Colors.white70,
-                            //   )
-                            // ],
                             children: [
                               IconButton(
                                 padding: EdgeInsets.zero,

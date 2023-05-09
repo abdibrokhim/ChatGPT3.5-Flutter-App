@@ -48,14 +48,6 @@ Future<void> buyTokenDialogBuilder({
                         ),
                       ),
                     ),
-                    // Text(
-                    //   'Contact Us',
-                    //   style: TextStyle(
-                    //       color: Colors.white,
-                    //       fontSize: 18.0, 
-                    //       fontWeight: FontWeight.bold
-                    //   ),
-                    // ),
                     const SizedBox(height: 10.0),
                     ElevatedButton(
                       onPressed: _launchEmail,
@@ -70,25 +62,10 @@ Future<void> buyTokenDialogBuilder({
                         ),
                       ),
                     ),
-                    // Text(
-                    //   EMAIL,
-                    //   style: TextStyle(
-                    //     color: Colors.white,
-                    //     fontSize: 16.0, 
-                    //   ),
-                    // ),
                     const SizedBox(height: 10.0),
-                    // Text(
-                    //   TELEGRAM,
-                    //   style: TextStyle(
-                    //     color: Colors.white,
-                    //     fontSize: 16.0, 
-                    //   ),
-                    // ),
                   ],
                 ),
               ),
-              // contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
             ),
           ),
         ),
@@ -106,8 +83,8 @@ Future<void> _launchTelegram() async {
 
 
 Future<void> _launchEmail() async {
-  if (!await launchUrl(Uri.parse(TELEGRAM))) {
-    throw Exception('Could not launch $TELEGRAM');
+  if (!await launchUrl(Uri.parse('mailto:$EMAIL'))) {
+    throw Exception('Could not launch $EMAIL');
   }
 }
 
